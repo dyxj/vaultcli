@@ -66,6 +66,13 @@ func vcliEncrypt(args []string) error {
 		return fmt.Errorf("requires an argument. Which is the filepath")
 	}
 
+	// Check if encrypted file already exist
+	newpath := args[0] + ".crypt"
+	_, err := os.Stat(newpath)
+	if !os.IsNotExist(err) {
+		return fmt.Errorf("Encrypted file %s already exist, encryption aborted to avoid override", newpath)
+	}
+
 	// Open file
 	f, err := os.Open(args[0])
 	if err != nil {
@@ -123,14 +130,13 @@ func vcliEncrypt(args []string) error {
 	ebytes, err := crypt.EncryptBytes(b, key32)
 
 	// Save file
-	newpath := args[0] + ".crypt"
 	err = ioutil.WriteFile(newpath, ebytes, finfo.Mode())
 	if err != nil {
 		return fmt.Errorf("couldn't save encrypted file, %v", err)
 	}
 
 	// Delete unencrypted file
-	err = os.Remove(args[0])
+	err = os.Remove(f.Name())
 	if err != nil {
 		return fmt.Errorf("couldn't delete unencrypted file, %v", err)
 	}

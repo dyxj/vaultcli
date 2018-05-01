@@ -64,6 +64,19 @@ func vcliDecrypt(args []string) error {
 		return fmt.Errorf("requires an argument. Which is the filepath")
 	}
 
+	// Make sure it is a .crypt file
+	_, fname := filepath.Split(args[0])
+	fnames := strings.Split(fname, ".")
+	if fnames[len(fnames)-1] != "crypt" {
+		return fmt.Errorf("file is not encrypted, file name should end with .crypt")
+	}
+
+	// Check if decrypted file already exist
+	newpath := strings.Join(fnames[:len(fnames)-1], ".")
+	if _, err := os.Stat(newpath); !os.IsNotExist(err) {
+		return fmt.Errorf("Decrypted file %s already exist, decryption aborted to avoid override", newpath)
+	}
+
 	// Open file
 	f, err := os.Open(args[0])
 	if err != nil {
@@ -80,13 +93,6 @@ func vcliDecrypt(args []string) error {
 	// Check if directory or file
 	if finfo.IsDir() {
 		return fmt.Errorf("path must point to a file")
-	}
-
-	// Make sure not .crypt file
-	_, fname := filepath.Split(f.Name())
-	fnames := strings.Split(fname, ".")
-	if fnames[len(fnames)-1] != "crypt" {
-		return fmt.Errorf("file is not encrypted, file name should end with .crypt")
 	}
 
 	// User Input Password
@@ -108,16 +114,18 @@ func vcliDecrypt(args []string) error {
 
 	// Encrypt bytes
 	ebytes, err := crypt.DecryptBytes(b, key32)
+	if err != nil {
+		return fmt.Errorf("couldn't decrypt file, %v", err)
+	}
 
 	// Save file
-	newpath := strings.Join(fnames[:len(fnames)-1], ".")
 	err = ioutil.WriteFile(newpath, ebytes, finfo.Mode())
 	if err != nil {
 		return fmt.Errorf("couldn't save encrypted file, %v", err)
 	}
 
 	// Delete unencrypted file
-	err = os.Remove(args[0])
+	err = os.Remove(f.Name())
 	if err != nil {
 		return fmt.Errorf("couldn't delete unencrypted file, %v", err)
 	}
