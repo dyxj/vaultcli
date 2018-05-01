@@ -112,7 +112,7 @@ func vcliDecrypt(args []string) error {
 	// Generate 32 byte key
 	key32 := crypt.HashTo32Bytes([]byte(bpass))
 
-	// Encrypt bytes
+	// Decrypt bytes
 	ebytes, err := crypt.DecryptBytes(b, key32)
 	if err != nil {
 		return fmt.Errorf("couldn't decrypt file, %v", err)
@@ -121,13 +121,13 @@ func vcliDecrypt(args []string) error {
 	// Save file
 	err = ioutil.WriteFile(newpath, ebytes, finfo.Mode())
 	if err != nil {
-		return fmt.Errorf("couldn't save encrypted file, %v", err)
+		return fmt.Errorf("couldn't save decrypted file, %v", err)
 	}
 
-	// Delete unencrypted file
+	// Delete original encrypted file
 	err = os.Remove(f.Name())
 	if err != nil {
-		return fmt.Errorf("couldn't delete unencrypted file, %v", err)
+		return fmt.Errorf("couldn't delete original encrypted file, %v", err)
 	}
 
 	return nil

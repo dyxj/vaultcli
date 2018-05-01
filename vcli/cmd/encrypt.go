@@ -128,6 +128,9 @@ func vcliEncrypt(args []string) error {
 
 	// Encrypt bytes
 	ebytes, err := crypt.EncryptBytes(b, key32)
+	if err != nil {
+		return fmt.Errorf("couldn't encrypt file, %v", err)
+	}
 
 	// Save file
 	err = ioutil.WriteFile(newpath, ebytes, finfo.Mode())
@@ -135,10 +138,10 @@ func vcliEncrypt(args []string) error {
 		return fmt.Errorf("couldn't save encrypted file, %v", err)
 	}
 
-	// Delete unencrypted file
+	// Delete original file
 	err = os.Remove(f.Name())
 	if err != nil {
-		return fmt.Errorf("couldn't delete unencrypted file, %v", err)
+		return fmt.Errorf("couldn't delete original file, %v", err)
 	}
 
 	return nil
