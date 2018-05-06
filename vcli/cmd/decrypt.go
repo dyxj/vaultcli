@@ -97,7 +97,7 @@ func vcliDecrypt(args []string) error {
 
 	// User Input Password
 	fmt.Printf("Enter password: ")
-	bpass, err := terminal.ReadPassword(syscall.Stdin)
+	bpass, err := terminal.ReadPassword(int(syscall.Stdin))
 	if err != nil {
 		return fmt.Errorf("could not read password, %v", err)
 	}
@@ -123,6 +123,9 @@ func vcliDecrypt(args []string) error {
 	if err != nil {
 		return fmt.Errorf("couldn't save decrypted file, %v", err)
 	}
+
+	// Close original encrypted file, to allow for delete(Windows)
+	f.Close()
 
 	// Delete original encrypted file
 	err = os.Remove(f.Name())
