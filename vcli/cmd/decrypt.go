@@ -43,6 +43,8 @@ Output file:
 	},
 }
 
+var boolPrintOnly bool
+
 func init() {
 	rootCmd.AddCommand(decryptCmd)
 
@@ -55,6 +57,7 @@ func init() {
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
 	// decryptCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	decryptCmd.Flags().BoolVarP(&boolPrintOnly, "print", "p", false, "print only")
 }
 
 func vcliDecrypt(args []string) error {
@@ -116,6 +119,11 @@ func vcliDecrypt(args []string) error {
 	ebytes, err := crypt.DecryptBytes(b, key32)
 	if err != nil {
 		return fmt.Errorf("couldn't decrypt file, %v", err)
+	}
+
+	if boolPrintOnly {
+		fmt.Println(string(ebytes))
+		return nil
 	}
 
 	// Save file
