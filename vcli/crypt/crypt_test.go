@@ -3,7 +3,8 @@ package crypt_test
 import (
 	"reflect"
 	"testing"
-	"vault/crypt"
+
+	"github.com/dyxj/vaultcli/vcli/crypt"
 )
 
 func TestEncryptDecrypt(t *testing.T) {
